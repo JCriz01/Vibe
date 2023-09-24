@@ -35,8 +35,14 @@ const UserHeader = ()=>{
                     </Text>
                     <Flex gap={2} alignItems={'center'}>
                         <Text fontSize={'sm'}>crizpy</Text>
-                        <Text fontSize={'xs'} bg={'gray.dark'}
-                         color={'gray.light'} p={1} borderRadius={'full'}
+                        <Text 
+                        fontSize={{
+                            base: 'xs',
+                            md: 'sm',
+                            lg: 'md'
+                        }} 
+                        bg={'gray.dark'}
+                        color={'gray.light'} p={1} borderRadius={'full'}
                         >vibe.net</Text>
                     </Flex>
                 </Box>
@@ -44,7 +50,10 @@ const UserHeader = ()=>{
                     <Avatar 
                         name="Crizpy"
                         src=''
-                        size={'xl'}
+                        size={{
+                            base: 'md',
+                            md: 'xl'
+                        }}
                     />
                 </Box>
             </Flex>
