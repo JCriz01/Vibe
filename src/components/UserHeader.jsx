@@ -1,19 +1,31 @@
-import {Box, VStack, Flex, Text} from '@chakra-ui/layout'
-import { Link } from '@chakra-ui/react'
+import {Box, VStack, Flex, Text} from '@chakra-ui/layout';
+import { Link, useToast } from '@chakra-ui/react';
 //import { ExternalLinkIcon } from '@chakra-ui/icons'
 import {Avatar} from '@chakra-ui/avatar';
 import {BsInstagram} from 'react-icons/bs';
 import {CgMoreO} from 'react-icons/cg';
-import {Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu'
-import {Portal} from '@chakra-ui/portal'
+import {Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
+import {Portal} from '@chakra-ui/portal';
+
+
 const UserHeader = ()=>{
+
+    const toast= useToast();
 
     const copyURL=()=>{
         const currentURL=window.location.href;
+        
         navigator.clipboard.writeText(currentURL).then(()=>{
-            console.log('The url is copied');
-        })
-    }
+            toast({
+                title: 'Account',
+                description: "Successfully added user link to clipboard",
+                status: 'success',
+                duration: 2000,
+                isClosable: true,
+            })
+         });
+    };
+
     return(
         <VStack gap={4} alignItems={"start"}>
             <Flex justifyContent={"space-between"} w={'full'}>
@@ -60,8 +72,17 @@ const UserHeader = ()=>{
                                 </MenuList>
                             </Portal>
                         </Menu>
-
-                    </Box>
+                    </Box>   
+                </Flex>
+            </Flex>
+            <Flex w={'full'}>
+                <Flex flex={1} borderBottom={'1.5px solid white'} justifyContent={'center'} pd="3" cursor={'pointer'}>
+                    <Text fontWeight={'bold'}>Vibes</Text>
+                </Flex>
+                <Flex flex={1}>
+                    <Flex flex={1} borderBottom={'1px solid grey'} justifyContent={'center'} color={'gray.light'} pd="3" cursor={'pointer'}>
+                        <Text fontWeight={'bold'}>Replies</Text>
+                    </Flex>
                 </Flex>
             </Flex>
         </VStack>
