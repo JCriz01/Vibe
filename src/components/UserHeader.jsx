@@ -36,7 +36,7 @@ const UserHeader = ()=>{
                     <Flex gap={2} alignItems={'center'}>
                         <Text fontSize={'sm'}>crizpy</Text>
                         <Text fontSize={'xs'} bg={'gray.dark'}
-                         color={'grey.light'} p={1} borderRadius={'full'}
+                         color={'gray.light'} p={1} borderRadius={'full'}
                         >vibe.net</Text>
                     </Flex>
                 </Box>
