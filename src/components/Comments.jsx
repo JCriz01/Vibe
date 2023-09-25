@@ -5,7 +5,10 @@ import {Avatar} from '@chakra-ui/avatar';
 import {Divider } from '@chakra-ui/react'
 import {BsThreeDots} from 'react-icons/bs';
 import Interactions from "./Interactions";
+
+
 const Comment=({comment, created, likes, username, avatarImg })=>{
+    
     const [liked, setLiked] = useState(false);
 
     return(

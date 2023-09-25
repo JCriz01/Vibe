@@ -73,6 +73,7 @@ const UserPosts=( {likes, replies, postImg, postTitle})=>{
                     borderColor={'gray.light'}>
                         <Image src="" w={'full'}></Image>
                     </Box>
+                    
                     <Flex gap={3} my={1}>
                         <Interactions liked={liked} setLiked={setLiked}/>
                     </Flex>

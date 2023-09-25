@@ -9,7 +9,7 @@ const UserPage= ()=>{
         <>
             <UserHeader />
 
-            <UserPosts likes={0} replies= {0} postImg='' postTitle='This is my first post'/>
+            <UserPosts likes={2} replies= {0} postImg='' postTitle='This is my first post'/>
             <UserPosts likes={0} replies= {0} postImg='' postTitle='This is my first post'/>
             <UserPosts likes={0} replies= {0} postImg='' postTitle='This is my first post'/>
 
