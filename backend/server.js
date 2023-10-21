@@ -10,9 +10,10 @@ const app = express();
 
 const PORT = process.env.PORT || 5000;
 
+//middlewares
 app.use(express.json()); //Parsing Json data to req.body
 app.use(express.urlencoded({ extended: true })); // To parse form data in the req.body
-app.use(cookieParser());
+app.use(cookieParser()); //read and access cookies
 
 //routes
 app.use("/api/users", userRoutes);
