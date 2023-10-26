@@ -14,6 +14,7 @@ import {
   useColorModeValue,
   Link,
 } from "@chakra-ui/react";
+
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useSetRecoilState } from "recoil";
@@ -24,6 +25,30 @@ export default function SignupCard() {
   const [showPassword, setShowPassword] = useState(false);
 
   const setAuthScreen = useSetRecoilState(authScreenAtom);
+
+  const [inputs, setInput] = useState({
+    name: "",
+    username: "",
+    email: "",
+    password: "",
+  });
+
+  const handleSignupClick = async () => {
+    try {
+      //console.log(inputs);
+      const res = await fetch("/api/users/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(inputs),
+      });
+      const data = await res.json();
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <Flex align={"center"} justify={"center"}>
       <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
@@ -46,24 +71,48 @@ export default function SignupCard() {
               <Box>
                 <FormControl isRequired>
                   <FormLabel>Full Name</FormLabel>
-                  <Input type="text" />
+                  <Input
+                    type="text"
+                    onChange={(Event) =>
+                      setInput({ ...inputs, name: Event.target.value })
+                    }
+                    value={inputs.name}
+                  />
                 </FormControl>
               </Box>
               <Box>
                 <FormControl isRequired>
                   <FormLabel>Username</FormLabel>
-                  <Input type="text" />
+                  <Input
+                    type="text"
+                    onChange={(Event) =>
+                      setInput({ ...inputs, username: Event.target.value })
+                    }
+                    value={inputs.username}
+                  />
                 </FormControl>
               </Box>
             </HStack>
             <FormControl isRequired>
               <FormLabel>Email address</FormLabel>
-              <Input type="email" />
+              <Input
+                type="email"
+                onChange={(Event) =>
+                  setInput({ ...inputs, email: Event.target.value })
+                }
+                value={inputs.email}
+              />
             </FormControl>
             <FormControl isRequired>
               <FormLabel>Password</FormLabel>
               <InputGroup>
-                <Input type={showPassword ? "text" : "password"} />
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  onChange={(Event) =>
+                    setInput({ ...inputs, password: Event.target.value })
+                  }
+                  value={inputs.password}
+                />
                 <InputRightElement h={"full"}>
                   <Button
                     variant={"ghost"}
@@ -85,6 +134,7 @@ export default function SignupCard() {
                 _hover={{
                   bg: useColorModeValue("gray.700", "gray.800"),
                 }}
+                onClick={handleSignupClick}
               >
                 Sign up
               </Button>
