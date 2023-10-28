@@ -28,7 +28,7 @@ function App() {
 
         <Route
           path="/update"
-          element={!user ? <UpdateProfilePage /> : <Navigate to="/auth" />}
+          element={user ? <UpdateProfilePage /> : <Navigate to="/auth" />}
         />
         <Route path="/:username" element={<UserPage />} />
         <Route path="/:username/post/:pid" element={<PostPage />} />

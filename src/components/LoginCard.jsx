@@ -49,6 +49,7 @@ export default function SimpleCard() {
       localStorage.setItem("user-Vibe", JSON.stringify(data));
 
       setUser(data);
+      showToast("Success", "Successfully logged in", "success");
     } catch (error) {
       showToast("Error", error, "error");
     }
