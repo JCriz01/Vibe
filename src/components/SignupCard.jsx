@@ -21,17 +21,23 @@ import { useSetRecoilState } from "recoil";
 
 import authScreenAtom from "../atoms/authAtom";
 
+import useShowToast from "../hooks/useShowToast";
+import userAtom from "../atoms/userAtom";
+
 export default function SignupCard() {
   const [showPassword, setShowPassword] = useState(false);
 
   const setAuthScreen = useSetRecoilState(authScreenAtom);
-
+  const setUser = useSetRecoilState(userAtom);
   const [inputs, setInput] = useState({
     name: "",
     username: "",
     email: "",
     password: "",
+    isClosable: true,
   });
+
+  const showToast = useShowToast();
 
   const handleSignupClick = async () => {
     try {
@@ -44,9 +50,18 @@ export default function SignupCard() {
         body: JSON.stringify(inputs),
       });
       const data = await res.json();
-      console.log(data);
+
+      if (data.error) {
+        showToast("Error", data.error, "error");
+        return;
+      }
+
+      localStorage.setItem("user-Vibe", JSON.stringify(data));
+      setUser(data);
+
+      showToast("Success", "Signed up successfully", "success");
     } catch (error) {
-      console.log(error);
+      showToast("Error", error, "error");
     }
   };
   return (

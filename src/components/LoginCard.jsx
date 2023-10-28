@@ -1,3 +1,4 @@
+import { useState, react } from "react";
 import {
   Flex,
   Box,
@@ -14,9 +15,44 @@ import {
 import { useSetRecoilState } from "recoil";
 
 import authScreenAtom from "../atoms/authAtom";
-
+import useShowToast from "../hooks/useShowToast";
+import userAtom from "../atoms/userAtom";
 export default function SimpleCard() {
   const setAuthScreen = useSetRecoilState(authScreenAtom);
+
+  const [inputs, setInputs] = useState({
+    username: "",
+    password: "",
+  });
+
+  const showToast = useShowToast();
+
+  const setUser = useSetRecoilState(userAtom);
+
+  const handleLogin = async () => {
+    try {
+      const res = await fetch("api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(inputs),
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        showToast("Error", data.error, "error");
+        return;
+      }
+
+      localStorage.setItem("user-Vibe", JSON.stringify(data));
+
+      setUser(data);
+    } catch (error) {
+      showToast("Error", error, "error");
+    }
+  };
 
   return (
     <Flex align={"center"} justify={"center"}>
@@ -36,11 +72,29 @@ export default function SimpleCard() {
           <Stack spacing={4}>
             <FormControl>
               <FormLabel>Username</FormLabel>
-              <Input type="email" />
+              <Input
+                type="text"
+                onChange={(Event) =>
+                  setInputs({
+                    ...inputs,
+                    username: Event.target.value,
+                  })
+                }
+                value={inputs.username}
+              />
             </FormControl>
             <FormControl>
               <FormLabel>Password</FormLabel>
-              <Input type="password" />
+              <Input
+                type="password"
+                value={inputs.password}
+                onChange={(Event) =>
+                  setInputs({
+                    ...inputs,
+                    password: Event.target.value,
+                  })
+                }
+              />
             </FormControl>
             <Stack spacing={10}>
               <Stack
@@ -64,6 +118,7 @@ export default function SimpleCard() {
                 _hover={{
                   bg: useColorModeValue("gray.700", "gray.800"),
                 }}
+                onClick={handleLogin}
               >
                 Sign in
               </Button>
