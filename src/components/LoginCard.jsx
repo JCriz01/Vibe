@@ -127,6 +127,7 @@ export default function SimpleCard() {
                 }}
                 onClick={handleLogin}
                 isLoading={loading}
+                loadingText="Logging in"
               >
                 Sign in
               </Button>

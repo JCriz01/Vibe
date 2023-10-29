@@ -79,22 +79,29 @@ export const deletePost = async (req, res) => {
 
 export const likeOrUnlikePost = async (req, res) => {
   try {
-    const { id: postID } = req.params;
-    const userID = req.user._id;
+    const { id: postId } = req.params;
+    const userId = req.user._id;
 
-    const post = await Post.findById(postID);
+    console.log(postId, userId);
+
+    const post = await Post.findById(postId);
+
+    console.log(post);
 
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
     }
 
-    const userLikedPost = post.likes.includes(userID);
+    const userLikedPost = post.likes.includes(userId);
+
+    console.log(userLikedPost);
 
     if (userLikedPost) {
-      await post.updateOne({ _id: postID }, { $pull: { likes: userID } });
+      await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
+
       res.status(200).json({ message: "Post unliked successfully" });
     } else {
-      post.likes.push(userID);
+      post.likes.push(userId);
 
       await post.save();
 
@@ -149,7 +156,7 @@ export const getPostFeeds = async (req, res) => {
     const feedPosts = await Post.find({ postedBy: { $in: following } }).sort({
       createdAt: -1,
     });
-    res.status(200).json({ feedPosts });
+    res.status(200).json(feedPosts);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
