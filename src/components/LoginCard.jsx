@@ -11,6 +11,7 @@ import {
   Heading,
   Text,
   useColorModeValue,
+  Spinner,
 } from "@chakra-ui/react";
 import { useSetRecoilState } from "recoil";
 
@@ -24,12 +25,14 @@ export default function SimpleCard() {
     username: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const showToast = useShowToast();
 
   const setUser = useSetRecoilState(userAtom);
 
   const handleLogin = async () => {
+    setLoading(true);
     try {
       const res = await fetch("api/users/login", {
         method: "POST",
@@ -49,9 +52,12 @@ export default function SimpleCard() {
       localStorage.setItem("user-Vibe", JSON.stringify(data));
 
       setUser(data);
+
       showToast("Success", "Successfully logged in", "success");
     } catch (error) {
       showToast("Error", error, "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -120,6 +126,7 @@ export default function SimpleCard() {
                   bg: useColorModeValue("gray.700", "gray.800"),
                 }}
                 onClick={handleLogin}
+                isLoading={loading}
               >
                 Sign in
               </Button>
