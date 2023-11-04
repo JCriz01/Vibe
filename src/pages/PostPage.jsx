@@ -1,57 +1,149 @@
-import { Flex, Avatar, Text, Image, Box, Divider } from "@chakra-ui/react"
-import {BsThreeDots} from 'react-icons/bs';
+import { Flex, Avatar, Text, Image, Box, Divider } from "@chakra-ui/react";
+import { BsThreeDots } from "react-icons/bs";
 import Interactions from "../components/Interactions";
 import { useState } from "react";
-import Comment from "../components/Comments";
+import Comments from "../components/Comments";
+import useGetUserProfile from "../hooks/useGetUserProfile";
+import { Spinner } from "@chakra-ui/spinner";
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
+import useShowToast from "../hooks/useShowToast";
+import { Button } from "@chakra-ui/button";
+import { formatDistanceToNowStrict } from "date-fns";
+import { DeleteIcon } from "@chakra-ui/icons";
+import { useRecoilValue } from "recoil";
+import userAtom from "../atoms/userAtom";
+import { useNavigate } from "react-router-dom";
 
-const PostPage = ()=>{
-    const [liked, setLiked]= useState(false);
-    return(
-        <>
-            <Flex>
-                <Flex w={'full'} alignItems={'center'}gap={3}>
-                    <Avatar src="" size={'md'} name="Crizpy"/>
-                    <Flex >
-                        <Text fontSize={'sm'} fontWeight={'bold'}>
-                            Crizpy
-                        </Text>
-                        <Image src="/check.png" w={4} h={4} ml={4} />
-                    </Flex>
-                </Flex>
-                <Flex gap={4} alignItems={'center'}>
-                    <Text fontSize={'sm'} color={'gray.light'}>1d</Text>
-                    <BsThreeDots />
-                </Flex>
-            </Flex>
+const PostPage = () => {
+  const { user, loading } = useGetUserProfile();
+  const [post, setPost] = useState(null);
+  const showToast = useShowToast();
+  const currentUser = useRecoilValue(userAtom);
 
-            <Text my={3}>This is a test.</Text>
-            <Box borderRadius='6' overflow={'hidden'} border={'1px solid'} borderColor={'gray.light'}>
-                <Image src="" w={'full'}></Image>
-            </Box>
+  const { pid } = useParams();
 
-            <Flex gap='3' my={3}>
-                <Interactions liked={liked} setLiked={setLiked}/>
-            </Flex>
+  const navigate = useNavigate();
 
-            <Flex gap={2} alignItems={'center'}>
-                <Text color={'gray.light'} fontSize={'sm'}>0 replies</Text>
-                <Box w={0.5} h={0.5} borderRadius={'full'} bg={'gray.light'}></Box>
-                <Text color={'gray.light'} fontSize={'sm'}>
-                    {0 + (liked? 1: 0)} likes
-                </Text>
-            </Flex>
-            <Divider my={4}/>
+  console.log(pid);
 
-            {/* implement get app component later */ }
-            <Comment 
-            comment={'looks great'} 
-            created={"1d"} 
-            likes={0} 
-            username={'johndoe'} 
-            avatarImg={''}
-            />
-        </>
-    )
-}
+  useEffect(() => {
+    const getPost = async () => {
+      try {
+        const res = await fetch(`/api/posts/${pid}`);
+        const data = await res.json();
+
+        if (data.error) {
+          showToast("Error", data.error, "error");
+          return;
+        }
+        console.log(data);
+        setPost(data);
+      } catch (error) {
+        showToast("Error", error.message, "error");
+        setPost(null);
+      } finally {
+        //setPostLoading(false);
+      }
+    };
+
+    getPost();
+  }, [showToast, pid, setPost]);
+
+  const handleDeletePost = async (Event) => {
+    try {
+      Event.preventDefault();
+
+      if (!window.confirm("Are you sure you want to delete this post?")) {
+        return;
+      }
+      const res = await fetch(`/api/posts/${post._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        showToast("Error", data.error, "error");
+      }
+
+      showToast("Success", "Post deleted successfully", "success");
+      navigate(`/${user.username}`);
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    }
+  };
+
+  if (!user && loading) {
+    return (
+      <Flex justifyContent={"center"}>
+        <Spinner size={"xl"} />
+      </Flex>
+    );
+  }
+
+  if (!post) return null;
+
+  return (
+    <>
+      <Flex>
+        <Flex w={"full"} alignItems={"center"} gap={3}>
+          <Avatar src={user.profilePic} size={"md"} name="Crizpy" />
+          <Flex>
+            <Text fontSize={"sm"} fontWeight={"bold"}>
+              {user.username}
+            </Text>
+            <Image src="/check.png" w={4} h={4} ml={4} />
+          </Flex>
+        </Flex>
+        <Flex gap={4} alignItems={"center"}>
+          <Text fontSize={"xs"} textAlign={"right"} color={"gray.light"}>
+            {formatDistanceToNowStrict(new Date(post.createdAt))} ago
+          </Text>
+
+          {currentUser?._id === user._id && (
+            <DeleteIcon size={20} onClick={handleDeletePost} />
+          )}
+        </Flex>
+      </Flex>
+
+      <Text my={3}>{post.text}</Text>
+
+      {post.img && (
+        <Box
+          borderRadius={6}
+          overflow={"hidden"}
+          border={"1px solid"}
+          borderColor={"gray.light"}
+        >
+          <Image src={post.img} w={"full"} />
+        </Box>
+      )}
+
+      <Flex gap="3" my={3}>
+        <Interactions post={post} />
+      </Flex>
+
+      <Divider my={4} />
+
+      <Flex justifyContent={"space-between"}>
+        <Flex gap={2} alignItems={"center"}>
+          <Text fontSize={"2xl"}>waving</Text>
+          <Text fontSize={"sm"} color={"gray.light"}>
+            Get the app to interact with the boys
+          </Text>
+        </Flex>
+        <Button>Get</Button>
+      </Flex>
+
+      <Divider my={4} />
+
+      {post.replies.length === 0 && <h1>No replies yet</h1>}
+
+      {post.replies.map((reply) => (
+        <Comments key={reply._id} reply={reply} />
+      ))}
+    </>
+  );
+};
 
 export default PostPage;
