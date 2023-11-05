@@ -19,7 +19,7 @@ connectDB();
 const app = express();
 
 const PORT = process.env.PORT || 3000;
-const DOMAIN = process.env.DOMAIN || `http://localhost`;
+const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN || `http://localhost`;
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
@@ -29,7 +29,7 @@ cloudinary.config({
 
 app.use(
   cors({
-    origin: `https//${process.env.DOMAIN}`,
+    origin: `https//${process.env.FRONTEND_DOMAIN}`,
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
@@ -46,5 +46,5 @@ app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 
 app.listen(PORT, "0.0.0.0", () =>
-  console.log(`Server started at ${DOMAIN}:${PORT}`)
+  console.log(`Server started at ${BACKEND_DOMAIN}:${PORT}`)
 );
