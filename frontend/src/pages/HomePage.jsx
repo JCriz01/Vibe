@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import useShowToast from "../hooks/useShowToast";
 import { useEffect, useState } from "react";
 import Posts from "../components/Posts";
+import { domainUrl } from "../../domain_url";
 
 const HomePage = () => {
   const showToast = useShowToast();
@@ -13,7 +14,7 @@ const HomePage = () => {
     const getFeedPosts = async () => {
       setLoading(true);
       try {
-        const res = await fetch("/api/posts/feed");
+        const res = await fetch(`${domainUrl}/api/posts/feed`);
         const data = await res.json();
 
         if (data.error) {

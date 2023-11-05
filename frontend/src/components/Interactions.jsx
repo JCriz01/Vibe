@@ -18,6 +18,7 @@ import {
   Box,
   Text,
 } from "@chakra-ui/react";
+import { domainUrl } from "../../domain_url";
 
 const Interactions = ({ post: post_ }) => {
   //console.log("Post is: ", post);
@@ -48,7 +49,7 @@ const Interactions = ({ post: post_ }) => {
     setIsLiking(true);
 
     try {
-      const res = await fetch(`/api/posts/like/${post._id}`, {
+      const res = await fetch(`${domainUrl}/api/posts/like/${post._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

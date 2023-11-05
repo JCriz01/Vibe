@@ -28,6 +28,7 @@ import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
 import { FiAnchor } from "react-icons/fi";
+import { domainUrl } from "../../domain_url";
 
 const CreatePost = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -56,7 +57,7 @@ const CreatePost = () => {
   const handleCreatePost = async () => {
     setUploading(true);
     try {
-      const res = await fetch(`/api/posts/create`, {
+      const res = await fetch(`${domainUrl}/api/posts/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

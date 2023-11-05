@@ -12,6 +12,7 @@ import { DeleteIcon } from "@chakra-ui/icons";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { useNavigate } from "react-router-dom";
+import { domainUrl } from "../../domain_url";
 
 const PostPage = () => {
   const { user, loading } = useGetUserProfile();
@@ -28,7 +29,7 @@ const PostPage = () => {
   useEffect(() => {
     const getPost = async () => {
       try {
-        const res = await fetch(`/api/posts/${pid}`);
+        const res = await fetch(`${domainUrl}/api/posts/${pid}`);
         const data = await res.json();
 
         if (data.error) {

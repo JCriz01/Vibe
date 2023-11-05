@@ -20,6 +20,7 @@ import { useSetRecoilState } from "recoil";
 import authScreenAtom from "../atoms/authAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
+import { domainUrl } from "../../domain_url";
 
 export default function SignupCard() {
   const [showPassword, setShowPassword] = useState(false);
@@ -39,7 +40,7 @@ export default function SignupCard() {
   const handleSignupClick = async () => {
     try {
       //console.log(inputs);
-      const res = await fetch("/api/users/signup", {
+      const res = await fetch(`${domainUrl}/api/users/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

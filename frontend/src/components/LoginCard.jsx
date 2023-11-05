@@ -17,6 +17,7 @@ import { useSetRecoilState } from "recoil";
 import authScreenAtom from "../atoms/authAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
+import { domainUrl } from "../../domain_url";
 
 export default function SimpleCard() {
   const setAuthScreen = useSetRecoilState(authScreenAtom);
@@ -34,7 +35,7 @@ export default function SimpleCard() {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const res = await fetch("api/users/login", {
+      const res = await fetch(`${domainUrl}/api/users/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

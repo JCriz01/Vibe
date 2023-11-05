@@ -11,6 +11,7 @@ import userAtom from "../atoms/userAtom";
 import { Link as RouterLink } from "react-router-dom";
 import { useState } from "react";
 import useShowToast from "../hooks/useShowToast";
+import { domainUrl } from "../../domain_url";
 
 const UserHeader = ({ user }) => {
   const toast = useToast();
@@ -48,7 +49,7 @@ const UserHeader = ({ user }) => {
     }
     setUpdating(true);
     try {
-      const res = await fetch(`/api/users/follow/${user._id}`, {
+      const res = await fetch(`${domainUrl}/api/users/follow/${user._id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

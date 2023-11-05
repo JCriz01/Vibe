@@ -5,6 +5,7 @@ import { Flex, Spinner } from "@chakra-ui/react";
 import useGetUserProfile from "../hooks/useGetUserProfile";
 import Posts from "../components/Posts";
 import UserHeader from "../components/UserHeader";
+import { domainUrl } from "../../domain_url";
 
 const UserPage = () => {
   const { user, loading } = useGetUserProfile();
@@ -21,7 +22,7 @@ const UserPage = () => {
     const getPosts = async () => {
       setPostLoading(true);
       try {
-        const res = await fetch(`/api/posts/user/${username}`);
+        const res = await fetch(`${domainUrl}/api/posts/user/${username}`);
         const data = await res.json();
 
         console.log(data);

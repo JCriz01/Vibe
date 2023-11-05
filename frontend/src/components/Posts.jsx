@@ -9,6 +9,7 @@ import { formatDistanceToNowStrict } from "date-fns";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
+import { domainUrl } from "../../domain_url";
 
 const Posts = ({ post, postedBy }) => {
   const currentUser = useRecoilValue(userAtom);
@@ -19,7 +20,7 @@ const Posts = ({ post, postedBy }) => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const res = await fetch(`/api/users/profile/${postedBy}`);
+        const res = await fetch(`${domainUrl}/api/users/profile/${postedBy}`);
 
         const data = await res.json();
         console.log(data);
@@ -45,7 +46,7 @@ const Posts = ({ post, postedBy }) => {
       if (!window.confirm("Are you sure you want to delete this post?")) {
         return;
       }
-      const res = await fetch(`/api/posts/${post._id}`, {
+      const res = await fetch(`${domainUrl}/api/posts/${post._id}`, {
         method: "DELETE",
       });
       const data = await res.json();
