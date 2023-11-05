@@ -29,7 +29,7 @@ cloudinary.config({
 
 app.use(
   cors({
-    origin: `https//${process.env.FRONTEND_DOMAIN}`,
+    origin: `https://${process.env.FRONTEND_DOMAIN}`,
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
