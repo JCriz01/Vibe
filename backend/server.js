@@ -32,10 +32,21 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+let allowedOrigins = ["https://vibe-production-6a25.up.railway.app"];
+
 //use cors to allow cross origin resource sharing
 app.use(
   cors({
-    origin: [`https://${FRONTEND_DOMAIN}:5400`],
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) === -1) {
+        let message =
+          "The CORS policy for this site does not allow access from the specified Origin.";
+        return callback(new Error(message), false);
+      }
+      return callback(null, true);
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
