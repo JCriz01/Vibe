@@ -12,6 +12,7 @@ const LogoutBtn = () => {
   const handleLogout = async () => {
     try {
       const res = await fetch(`${domainUrl}/api/users/logout`, {
+        credentials: "include",
         method: "POST",
         headers: {
           "Content-Type": "application/json",

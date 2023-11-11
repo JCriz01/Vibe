@@ -2,6 +2,7 @@ import { useState } from "react";
 import useShowToast from "./useShowToast";
 import { useEffect } from "react";
 import { useParams } from "react-router";
+import { domainUrl } from "../../domain_url";
 
 const useGetUserProfile = () => {
   const [user, setUser] = useState(null);
@@ -14,17 +15,23 @@ const useGetUserProfile = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const res = await fetch(`/api/users/profile/${username}`);
+        const res = await fetch(`${domainUrl}/api/users/profile/${username}`, {
+          credentials: "include",
+        });
+
+        if (!res.ok) throw new Error("Something went wrong!");
+
+        console.log("Inside useGetUserProfile, res is: ", res);
         const data = await res.json();
 
         if (data.error) {
-          showToast("Error", data.error, "error");
+          showToast("User Error", data.error, "error");
           return;
         }
 
         setUser(data);
       } catch (error) {
-        showToast("Error", error.message, "error");
+        showToast("Data Error", error.message, "error");
       } finally {
         setLoading(false);
       }
@@ -33,7 +40,7 @@ const useGetUserProfile = () => {
     getUser();
   }, [username, showToast]);
 
-  return { user, loading };
+  return { loading, user };
 };
 
 export default useGetUserProfile;

@@ -12,14 +12,19 @@ import postRoutes from "./routes/postRoutes.js";
 import { v2 as cloudinary } from "cloudinary";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 dotenv.config({ path: path.join(__dirname, "/.env") });
 
+//connect to database
 connectDB();
 const app = express();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
+
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN || `http://localhost`;
+
+const FRONTEND_DOMAIN = process.env.FRONTEND_DOMAIN;
+
+console.log(FRONTEND_DOMAIN);
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
@@ -27,24 +32,29 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+//use cors to allow cross origin resource sharing
 app.use(
   cors({
-    origin: `https://${process.env.FRONTEND_DOMAIN}`,
+    origin: [`http://${FRONTEND_DOMAIN}:5400`],
     methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
   })
 );
 
+//use helmet to secure the app by setting various HTTP headers
 app.use(helmet());
+
+app.use(cookieParser()); //read and access cookies
 
 //middlewares
 app.use(express.json({ limit: "10mb" })); //Parsing Json data to req.body
 app.use(express.urlencoded({ limit: "10mb", extended: true })); // To parse form data in the req.body
-app.use(cookieParser()); //read and access cookies
 
 //routes
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 
+//TODO: after the PORT parameter add 0.0.0.0 to make it work on railway
 app.listen(PORT, "0.0.0.0", () =>
   console.log(`Server started at ${BACKEND_DOMAIN}:${PORT}`)
 );

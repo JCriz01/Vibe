@@ -66,6 +66,8 @@ export const signupUser = async (req, res) => {
         bio: newUser.bio,
         profilePic: newUser.profilePic,
       });
+
+      console.log(req.cookies);
     } else {
       res.status(400).json({ error: "Invalid user data" });
     }

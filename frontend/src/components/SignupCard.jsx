@@ -42,6 +42,7 @@ export default function SignupCard() {
       //console.log(inputs);
       const res = await fetch(`${domainUrl}/api/users/signup`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },

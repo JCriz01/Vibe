@@ -10,11 +10,15 @@ const HomePage = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  console.log("currently on home page, the posts are: ", posts);
+
   useEffect(() => {
     const getFeedPosts = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${domainUrl}/api/posts/feed`);
+        const res = await fetch(`${domainUrl}/api/posts/feed`, {
+          credentials: "include",
+        });
         const data = await res.json();
 
         if (data.error) {
@@ -32,6 +36,8 @@ const HomePage = () => {
 
     getFeedPosts();
   }, [showToast]);
+
+  if (posts.message === "Unauthorized") return null;
 
   return (
     <>

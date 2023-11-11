@@ -50,6 +50,7 @@ const UserHeader = ({ user }) => {
     setUpdating(true);
     try {
       const res = await fetch(`${domainUrl}/api/users/follow/${user._id}`, {
+        credentials: "include",
         method: "POST",
         headers: {
           "Content-Type": "application/json",

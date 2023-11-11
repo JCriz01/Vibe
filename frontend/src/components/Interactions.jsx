@@ -50,6 +50,7 @@ const Interactions = ({ post: post_ }) => {
 
     try {
       const res = await fetch(`${domainUrl}/api/posts/like/${post._id}`, {
+        credentials: "include",
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

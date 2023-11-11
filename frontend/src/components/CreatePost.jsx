@@ -58,6 +58,7 @@ const CreatePost = () => {
     setUploading(true);
     try {
       const res = await fetch(`${domainUrl}/api/posts/create`, {
+        credentials: "include",
         method: "POST",
         headers: {
           "Content-Type": "application/json",

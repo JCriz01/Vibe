@@ -24,12 +24,16 @@ const PostPage = () => {
 
   const navigate = useNavigate();
 
-  console.log(pid);
+  console.log("At PostPage, the pid is: ", pid);
+
+  console.log("Currently at PostPage, the user is: ", user);
 
   useEffect(() => {
     const getPost = async () => {
       try {
-        const res = await fetch(`${domainUrl}/api/posts/${pid}`);
+        const res = await fetch(`${domainUrl}/api/posts/${pid}`, {
+          credentials: "include",
+        });
         const data = await res.json();
 
         if (data.error) {
@@ -57,6 +61,7 @@ const PostPage = () => {
         return;
       }
       const res = await fetch(`/api/posts/${post._id}`, {
+        credentials: "include",
         method: "DELETE",
       });
       const data = await res.json();

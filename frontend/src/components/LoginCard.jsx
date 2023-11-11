@@ -37,14 +37,13 @@ export default function SimpleCard() {
     try {
       const res = await fetch(`${domainUrl}/api/users/login`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(inputs),
       });
-
       const data = await res.json();
-
       if (data.error) {
         showToast("Error", data.error, "error");
         return;

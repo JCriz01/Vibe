@@ -11,7 +11,7 @@ const UserPage = () => {
   const { user, loading } = useGetUserProfile();
   const { username } = useParams();
 
-  console.log(username);
+  console.log("Currently at UserPage,", username);
 
   const showToast = useShowToast();
 
@@ -22,7 +22,10 @@ const UserPage = () => {
     const getPosts = async () => {
       setPostLoading(true);
       try {
-        const res = await fetch(`${domainUrl}/api/posts/user/${username}`);
+        const res = await fetch(`${domainUrl}/api/posts/user/${username}`, {
+          credentials: "include",
+        });
+        console.log(res);
         const data = await res.json();
 
         console.log(data);
