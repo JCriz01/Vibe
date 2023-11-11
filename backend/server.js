@@ -35,7 +35,7 @@ cloudinary.config({
 //use cors to allow cross origin resource sharing
 app.use(
   cors({
-    origin: [`http://${FRONTEND_DOMAIN}:5400`],
+    origin: [`https://${FRONTEND_DOMAIN}:5400`],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
