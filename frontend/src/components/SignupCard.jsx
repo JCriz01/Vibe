@@ -1,18 +1,18 @@
 import {
-  Flex,
   Box,
+  Button,
+  Flex,
   FormControl,
   FormLabel,
+  Heading,
+  HStack,
   Input,
   InputGroup,
-  HStack,
   InputRightElement,
+  Link,
   Stack,
-  Button,
-  Heading,
   Text,
   useColorModeValue,
-  Link,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
@@ -63,6 +63,7 @@ export default function SignupCard() {
       showToast("Error", error, "error");
     }
   };
+
   return (
     <Flex align={"center"} justify={"center"}>
       <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>

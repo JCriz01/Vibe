@@ -1,16 +1,17 @@
 import express from "express";
-import { protectRoute } from "../middlewares/protectRoute.js";
+import {protectRoute} from "../middlewares/protectRoute.js";
 import {
-  signupUser,
+  followOrUnfollowUser,
+  getUserProfile,
   loginUser,
   logoutUser,
-  followOrUnfollowUser,
+  signupUser,
   updateUser,
-  getUserProfile,
 } from "../controllers/userController.js";
 
 const router = express.Router();
 
+//setting routes for users
 router.get("/profile/:query", getUserProfile);
 router.post("/signup", signupUser);
 router.post("/login", loginUser);
