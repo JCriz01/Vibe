@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import generateTokenAndSetCookies from "../utils/helpers/generateToken&SetCookies.js";
 import { v2 as cloudinary } from "cloudinary";
 import mongoose from "mongoose";
+import dotenv from "dotenv";
 
 export const getUserProfile = async (req, res) => {
   //query is either username or userId
@@ -41,6 +42,10 @@ export const signupUser = async (req, res) => {
 
     const user = await User.findOne({ $or: [{ email }, { username }] });
 
+    if (process.env.NODE_ENV === "development") {
+      return res.status(400).json({ error: "Signup is currently disabled." });
+    }
+
     if (user) {
       return res.status(400).json({ error: "User already exists" });
     }
@@ -66,8 +71,6 @@ export const signupUser = async (req, res) => {
         bio: newUser.bio,
         profilePic: newUser.profilePic,
       });
-
-      console.log(req.cookies);
     } else {
       res.status(400).json({ error: "Invalid user data" });
     }
@@ -87,7 +90,16 @@ export const loginUser = async (req, res) => {
       user?.password || ""
     );
 
-    if (!user || !isPasswordCorrect) {
+    //check if the user and password field is empty
+    if (!username || !password) {
+      return res.status(400).json({ error: "Please fill all the fields" });
+    }
+
+    if (!user) {
+      return res.status(400).json({ error: "User not found." });
+    }
+
+    if (!isPasswordCorrect) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
 
@@ -172,8 +184,7 @@ export const updateUser = async (req, res) => {
     }
     if (password) {
       const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-      user.password = hashedPassword;
+      user.password = await bcrypt.hash(password, salt);
     }
 
     if (profilePic) {
