@@ -7,10 +7,12 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
+node_modules/
+/backend/node_modules/*
 dist
 dist-ssr
 *.local
+*.d.ts
 
 # Editor directories and files
 .vscode/*
@@ -23,3 +25,5 @@ dist-ssr
 *.sln
 *.sw?
 .env
+backend/node_modules/@types/node/globals.d.ts
+backend/node_modules/@types/node/assert.d.ts
