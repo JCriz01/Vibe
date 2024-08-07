@@ -1,0 +1,313 @@
+import bcrypt from "bcryptjs";
+import { v2 as cloudinary } from "cloudinary";
+import { NextFunction, Request, Response } from "express";
+import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
+import passport from "../utils/passport";
+import { User } from "@prisma/client";
+import { prismaClient as prisma } from "../server";
+import { UnprocessableEntityError } from "../exceptions/validation";
+import { ErrorCodes } from "../exceptions/root";
+import { signupSchema } from "../schema/User";
+
+//TODO: Remove this into its own type file
+interface AuthInfo {
+  message?: string;
+}
+
+export const getUserProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  //query is either username or userId
+  const { query } = req.params;
+
+  console.log(req.params);
+
+  console.log(query);
+  try {
+    let user: User | null;
+
+    //finding via id or username in prisma
+    user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          {
+            id: query,
+          },
+          {
+            username: query,
+          },
+        ],
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (error: any) {
+    console.log("Error in getUserProfile ", error.message);
+    next(
+      new UnprocessableEntityError(
+        error.issues,
+        "Validation Error",
+        ErrorCodes.USER_NOT_FOUND
+      )
+    );
+  }
+};
+
+//Sign up user
+export const signupUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (process.env.NODE_ENV === "development") {
+      return res.status(400).json({ error: "Signup is currently disabled." });
+    }
+    signupSchema.parse(req.body);
+    const { name, email, username, password } = req.body;
+
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          {
+            email,
+          },
+          {
+            username,
+          },
+        ],
+      },
+    });
+
+    console.log("User is: ", user);
+
+    if (user) {
+      return res.status(400).json({ error: "User already exists" });
+    }
+
+    bcrypt.hash(password, 8, async (err, hash) => {
+      if (err) {
+        console.log(err);
+        return next(err);
+      } else {
+        try {
+          const user = await prisma.user.create({
+            data: {
+              name,
+              email,
+              username,
+              password: hash,
+            },
+          });
+
+          return res
+            .status(201)
+            .json({ success: "User created successfully." });
+        } catch (error) {
+          return next(error);
+        }
+      }
+    });
+  } catch (error: any) {
+    console.log("Error in signupUser ", error.message);
+    next(
+      new UnprocessableEntityError(
+        error.issues,
+        "Validation Error",
+        ErrorCodes.UNPROCESSABLE_ENTITY
+      )
+    );
+  }
+};
+
+export const loginUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  passport.authenticate(
+    "local",
+    { session: false },
+    (err: unknown, user: User, info: AuthInfo) => {
+      if (err) return next(err);
+      if (!user) return res.status(400).json({ message: info.message });
+
+      //generating JWT token
+      const jwtSecret = process.env.JWT_SECRET || "secret";
+      const token = jwt.sign({ id: user.id }, jwtSecret, {
+        expiresIn: "1h",
+      });
+      console.log(user);
+      res.json({ success: "Access granted", token });
+    }
+  )(req, res, next);
+};
+
+export const logoutUser = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    res.cookie("jwt", "", { maxAge: 1 });
+    res.status(200).json({ message: "User logged out successfully" });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+    console.log("Error in logoutUser ", error.message);
+  }
+};
+
+export const followOrUnfollowUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id: targetId } = req.params;
+    const userId = (req.user as User).id;
+    const modifyUser = await prisma.user.findUnique({
+      where: {
+        id: targetId,
+      },
+    });
+
+    const currentUser = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        following: {
+          include: {
+            follower: true,
+          },
+        },
+      },
+    });
+
+    if (!modifyUser || !currentUser) {
+      return res.status(400).json({ error: "User not found" });
+    }
+
+    if (modifyUser?.id === userId.toString()) {
+      return res
+        .status(400)
+        .json({ error: "You cannot follow/unfollow yourself" });
+    }
+
+    const isFollowing = currentUser.following.some((user) => {
+      return user.followerId === currentUser.id;
+    });
+
+    console.log("isFollowing: ", isFollowing);
+    if (isFollowing) {
+      await prisma.follow.delete({
+        where: {
+          followerId_followingId: {
+            followingId: modifyUser.id,
+            followerId: userId,
+          },
+        },
+      });
+
+      res.status(200).json({ message: "User unfollowed successfully" });
+    } else {
+      await prisma.follow.create({
+        data: {
+          followingId: modifyUser.id,
+          followerId: userId,
+        },
+      });
+
+      res.status(200).json({ message: "User followed successfully" });
+    }
+  } catch (error: any) {
+    console.log("Error in followOrUnfollowUser ", error.message);
+    next(
+      new UnprocessableEntityError(
+        error.issues,
+        "Validation Error",
+        ErrorCodes.USER_FOLLOW_ERROR
+      )
+    );
+  }
+};
+
+export const updateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { name, email, username, password, bio } = req.body;
+  let { avatar } = req.body;
+
+  const userID = (req.user as User).id;
+  try {
+    let user = await prisma.user.findUnique({
+      where: {
+        id: userID,
+      },
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: "User not found" });
+    }
+
+    if (req.params.id !== userID.toString()) {
+      return res
+        .status(400)
+        .json({ error: "You cannot update an other users profile!" });
+    }
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+    }
+
+    if (avatar) {
+      if (user.avatar) {
+        const avatarFileName = user.avatar.split("/").pop()?.split(".")[0];
+        if (avatarFileName) {
+          await cloudinary.uploader.destroy(avatarFileName);
+        }
+      }
+      const uploadedResponse = await cloudinary.uploader.upload(avatar);
+
+      avatar = uploadedResponse.secure_url;
+    }
+
+    user.name = name || user.name;
+
+    user.email = email || user.email;
+
+    user.username = username || user.username;
+
+    user.avatar = avatar || user.avatar;
+
+    user.bio = bio || user.bio;
+
+    user = await prisma.user.update({
+      where: {
+        id: userID,
+      },
+      data: {
+        ...user,
+      },
+    });
+
+    //password will be null in the response
+    user.password = "null";
+
+    res.status(200).json(user);
+  } catch (error: any) {
+    console.log("Error in updateUser ", error.message);
+    next(
+      new UnprocessableEntityError(
+        error.issues,
+        "Validation Error",
+        ErrorCodes.UNPROCESSABLE_ENTITY
+      )
+    );
+  }
+};
