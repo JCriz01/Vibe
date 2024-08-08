@@ -1,19 +1,93 @@
 import bcrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
 import { NextFunction, Request, Response } from "express";
-import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
-import passport from "../utils/passport";
 import { User } from "@prisma/client";
 import { prismaClient as prisma } from "../server";
 import { UnprocessableEntityError } from "../exceptions/validation";
 import { ErrorCodes } from "../exceptions/root";
 import { signupSchema } from "../schema/User";
+import { issueJWT } from "../utils/utils";
 
 //TODO: Remove this into its own type file
 interface AuthInfo {
   message?: string;
 }
+
+export const getCurrentUser = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const user = req.user as User;
+  res.status(200).json(user);
+};
+
+//Sign up user
+export const signupUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (process.env.NODE_ENV === "development") {
+      return res.status(400).json({ error: "Signup is currently disabled." });
+    }
+    signupSchema.parse(req.body);
+    const { name, email, username, password } = req.body;
+
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          {
+            email,
+          },
+          {
+            username,
+          },
+        ],
+      },
+    });
+
+    console.log("User is: ", user);
+
+    if (user) {
+      return res.status(400).json({ error: "User already exists" });
+    }
+
+    bcrypt.hash(password, 8, async (err, hash) => {
+      if (err) {
+        console.log(err);
+        return next(err);
+      } else {
+        try {
+          const newUser = await prisma.user.create({
+            data: {
+              name,
+              email,
+              username,
+              password: hash,
+            },
+          });
+
+          return res
+            .status(201)
+            .json({ success: "User created successfully.", user: newUser });
+        } catch (error) {
+          return next(error);
+        }
+      }
+    });
+  } catch (error: any) {
+    console.log("Error in signupUser ", error.message);
+    next(
+      new UnprocessableEntityError(
+        error.issues,
+        "Validation Error",
+        ErrorCodes.UNPROCESSABLE_ENTITY
+      )
+    );
+  }
+};
 
 export const getUserProfile = async (
   req: Request,
@@ -60,94 +134,48 @@ export const getUserProfile = async (
   }
 };
 
-//Sign up user
-export const signupUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    if (process.env.NODE_ENV === "development") {
-      return res.status(400).json({ error: "Signup is currently disabled." });
-    }
-    signupSchema.parse(req.body);
-    const { name, email, username, password } = req.body;
-
-    const user = await prisma.user.findFirst({
-      where: {
-        OR: [
-          {
-            email,
-          },
-          {
-            username,
-          },
-        ],
-      },
-    });
-
-    console.log("User is: ", user);
-
-    if (user) {
-      return res.status(400).json({ error: "User already exists" });
-    }
-
-    bcrypt.hash(password, 8, async (err, hash) => {
-      if (err) {
-        console.log(err);
-        return next(err);
-      } else {
-        try {
-          const user = await prisma.user.create({
-            data: {
-              name,
-              email,
-              username,
-              password: hash,
-            },
-          });
-
-          return res
-            .status(201)
-            .json({ success: "User created successfully." });
-        } catch (error) {
-          return next(error);
-        }
-      }
-    });
-  } catch (error: any) {
-    console.log("Error in signupUser ", error.message);
-    next(
-      new UnprocessableEntityError(
-        error.issues,
-        "Validation Error",
-        ErrorCodes.UNPROCESSABLE_ENTITY
-      )
-    );
-  }
-};
-
 export const loginUser = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  passport.authenticate(
-    "local",
-    { session: false },
-    (err: unknown, user: User, info: AuthInfo) => {
-      if (err) return next(err);
-      if (!user) return res.status(400).json({ message: info.message });
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        username: req.body.username,
+      },
+    });
 
-      //generating JWT token
-      const jwtSecret = process.env.JWT_SECRET || "secret";
-      const token = jwt.sign({ id: user.id }, jwtSecret, {
-        expiresIn: "1h",
-      });
-      console.log(user);
-      res.json({ success: "Access granted", token });
+    console.log("User is: ", user);
+
+    if (!user) {
+      return res.status(400).json({ message: "Incorrect credentials." });
     }
-  )(req, res, next);
+
+    const match = await bcrypt.compare(req.body.password, user.password);
+
+    if (match) {
+      //generating JWT token
+      const token = issueJWT(user);
+      console.log("Token is: ", token);
+      res.json({
+        success: "Access granted",
+        token: token.token,
+        expiresIn: token.expires,
+      });
+    } else {
+      res.status(400).json({ message: "Incorrect credentials." });
+    }
+  } catch (error: any) {
+    console.log("Error in loginUser ", error.message);
+    next(
+      new UnprocessableEntityError(
+        error.issues,
+        "Validation Error",
+        ErrorCodes.USER_NOT_FOUND
+      )
+    );
+  }
 };
 
 export const logoutUser = (req: Request, res: Response, next: NextFunction) => {
@@ -241,6 +269,7 @@ export const updateUser = async (
   next: NextFunction
 ) => {
   const { name, email, username, password, bio } = req.body;
+  console.log("req.user is: ", req.user);
   let { avatar } = req.body;
 
   const userID = (req.user as User).id;
