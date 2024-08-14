@@ -1,15 +1,13 @@
-import {useRecoilValue, useSetRecoilState} from "recoil";
 import SignupCard from "../components/SignupCard";
 import LoginCard from "../components/LoginCard";
 import authScreenAtom from "../atoms/authAtom";
-
+import { useAtom, useAtomValue } from "jotai";
 const AuthPage = () => {
-	const authScreenState = useRecoilValue(authScreenAtom);
+  const authScreenState = useAtomValue(authScreenAtom);
 
+  //useSetRecoilState(authScreenAtom);
 
-	useSetRecoilState(authScreenAtom);
-
-	return <>{authScreenState === "login" ? <LoginCard/> : <SignupCard/>}</>;
+  return <>{authScreenState === "login" ? <LoginCard /> : <SignupCard />}</>;
 };
 
 export default AuthPage;
