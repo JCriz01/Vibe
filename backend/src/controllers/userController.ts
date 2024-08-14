@@ -19,6 +19,11 @@ export const getCurrentUser = (
   next: NextFunction
 ) => {
   const user = req.user as User;
+
+  if (!user) {
+    res.status(400).json({ error: "User not found" });
+  }
+
   res.status(200).json(user);
 };
 
@@ -115,6 +120,11 @@ export const getUserProfile = async (
           },
         ],
       },
+      include: {
+        posts: true,
+        followers: true,
+        following: true,
+      },
     });
 
     if (!user) {
@@ -162,6 +172,7 @@ export const loginUser = async (
         success: "Access granted",
         token: token.token,
         expiresIn: token.expires,
+        user,
       });
     } else {
       res.status(400).json({ message: "Incorrect credentials." });

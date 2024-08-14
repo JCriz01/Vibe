@@ -19,10 +19,24 @@ export const getPost = async (
       where: {
         id: req.params.id,
       },
+      include: {
+        postedBy: true,
+        likes: true,
+        replies: {
+          include: {
+            childReplies: {
+              include: {
+                likes: true,
+              },
+            },
+            user: true,
+          },
+        },
+      },
     });
 
     if (!post) {
-      return res.status(404).json({ message: "Post not found" });
+      return res.status(404).json({ error: "Post not found" });
     }
     res.status(200).json(post);
   } catch (error) {
@@ -43,7 +57,7 @@ export const createPost = async (
 
     //TODO: Replace this with zod validation?
     if (!postedBy || !content) {
-      return res.status(400).json({ message: "Please fill all the fields" });
+      return res.status(400).json({ error: "Please fill all the fields" });
     }
     const user = req.user;
     /*TODO: remove this in place of const user = req.user.
@@ -259,16 +273,37 @@ export const getPostFeeds = async (
     console.log("running getPostFeeds");
     const userId = (req.user as User).id;
 
-    const user = await prisma.user.findUnique({
+    const feedPosts = await prisma.post.findMany({
       where: {
-        id: userId,
+        postedBy: {
+          followers: {
+            some: {
+              followerId: userId,
+            },
+          },
+        },
+      },
+      include: {
+        postedBy: true,
+        _count: {
+          select: {
+            likes: true,
+            replies: true,
+          },
+        },
+        replies: true,
+        likes: true,
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
-    console.log("User is: ", user);
+    console.log("followingPostFeed is: ", feedPosts);
 
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
+    if (!feedPosts) {
+      return res.status(404).json({ error: "Feed not found" });
     }
+    return res.status(200).json(feedPosts);
 
     //const following = user.following;
 
