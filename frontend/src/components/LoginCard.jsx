@@ -11,17 +11,24 @@ import {
   Heading,
   Text,
   useColorModeValue,
-  Spinner,
 } from "@chakra-ui/react";
-import { useSetRecoilState } from "recoil";
+import { useAtom } from "jotai";
+//import { useSetRecoilState } from "recoil";
 import authScreenAtom from "../atoms/authAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
+//import { useUserStore2 } from "../store/userStore";
 import { domainUrl } from "../../domain_url";
+import { useUserStore } from "../store/userStore";
+import { useNavigate } from "react-router-dom";
+
+//TODO: Fix jotai state not updating immediately.
 
 export default function SimpleCard() {
-  const setAuthScreen = useSetRecoilState(authScreenAtom);
-
+  const navigate = useNavigate();
+  const [, setAuthScreen] = useAtom(authScreenAtom);
+  const [userToken, setUserToken] = useAtom(userAtom);
+  const setUser = useUserStore((state) => state.updateAccount);
   const [inputs, setInputs] = useState({
     username: "",
     password: "",
@@ -29,8 +36,6 @@ export default function SimpleCard() {
   const [loading, setLoading] = useState(false);
 
   const showToast = useShowToast();
-
-  const setUser = useSetRecoilState(userAtom);
 
   const handleLogin = async () => {
     setLoading(true);
@@ -44,18 +49,23 @@ export default function SimpleCard() {
         body: JSON.stringify(inputs),
       });
       const data = await res.json();
-      if (data.error) {
-        showToast("Error", data.error, "error");
+      if (data.message) {
+        showToast("Error", data.message, "error");
         return;
       }
 
-      localStorage.setItem("user-Vibe", JSON.stringify(data));
+      if (data.token) {
+        localStorage.setItem("user-token", JSON.stringify(data.token));
+        setUserToken(data.token);
+        console.log("setting user token, value is now: ", userToken);
 
-      setUser(data);
-
-      showToast("Success", "Successfully logged in", "success");
+        setUser(data.user);
+        showToast("Success", "Successfully logged in", "success");
+        navigate("/");
+      }
     } catch (error) {
-      showToast("Error", error, "error");
+      console.log("error from login", error);
+      showToast("Error", error.message, "error");
     } finally {
       setLoading(false);
     }

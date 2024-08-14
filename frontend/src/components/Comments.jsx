@@ -18,16 +18,18 @@ const Comments = ({ reply }) => {
             alignItems={"center"}
           >
             <Text fontSize={"sm"} fontWeight={"bold"}>
-              {reply.username}
+              {reply.user.username}
             </Text>
-            {/*<Flex gap={2} alignItems={"center"}>
-              <Text fontSize={"sm"} color={"gray.light"}>
-                {created}
-              </Text>
-              <BsThreeDots />
-  </Flex>*/}
+            {
+              <Flex gap={2} alignItems={"center"}>
+                <Text fontSize={"sm"} color={"gray.light"}>
+                  {reply.createdAt}
+                </Text>
+                <BsThreeDots />
+              </Flex>
+            }
           </Flex>
-          <Text>{reply.text}</Text>
+          <Text>{reply.content}</Text>
           {/*<Interactions liked={liked} setLiked={setLiked} /> */}
           {/*<Text fontSize={"sm"} color={"gray.light"}>
             {likes + (liked ? 1 : 0)} likes

@@ -16,17 +16,19 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
-import { useSetRecoilState } from "recoil";
+import { useAtom } from "jotai";
 import authScreenAtom from "../atoms/authAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
 import { domainUrl } from "../../domain_url";
+import { useNavigate } from "react-router-dom";
 
 export default function SignupCard() {
   const [showPassword, setShowPassword] = useState(false);
 
-  const setAuthScreen = useSetRecoilState(authScreenAtom);
-  const setUser = useSetRecoilState(userAtom);
+  const [authScreen, setAuthScreen] = useAtom(authScreenAtom);
+  const [user, setUser] = useAtom(userAtom);
+  const navigation = useNavigate();
   const [inputs, setInput] = useState({
     name: "",
     username: "",
@@ -50,17 +52,22 @@ export default function SignupCard() {
       });
       const data = await res.json();
 
-      if (data.error) {
-        showToast("Error", data.error, "error");
-        return;
+      console.log(data);
+
+      if (data.errorCode === 4001) {
+        throw Error(data.message);
       }
 
-      localStorage.setItem("user-Vibe", JSON.stringify(data));
-      setUser(data);
+      if (data.error) {
+        throw Error(data.error);
+      }
 
+      //localStorage.setItem("user-Vibe", JSON.stringify(data));
+      //setUser(data);
+      navigation("/");
       showToast("Success", "Signed up successfully", "success");
     } catch (error) {
-      showToast("Error", error, "error");
+      showToast("Error", error.message, "error");
     }
   };
 

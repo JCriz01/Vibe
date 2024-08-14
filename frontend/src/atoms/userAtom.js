@@ -1,8 +1,4 @@
-import { atom } from "recoil";
+import { atom } from "jotai";
 
-const userAtom = atom({
-  key: "userAtom",
-  default: JSON.parse(localStorage.getItem("user-Vibe")),
-});
-
+const userAtom = atom(null);
 export default userAtom;

@@ -29,17 +29,29 @@ import userAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
 import { FiAnchor } from "react-icons/fi";
 import { domainUrl } from "../../domain_url";
+import { useAtom } from "jotai";
+import { useUserStore } from "../store/userStore";
+import { useNavigate } from "react-router-dom";
 
 const CreatePost = () => {
+  const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [postText, setPostText] = useState("");
   const MAX_CHAR = 500;
   const [remainingChar, setRemainingChar] = useState(MAX_CHAR);
   const { handleImgChange, imgUrl, setImgUrl } = usePreviewImg();
   const imageRef = useRef(null);
-  const user = useRecoilValue(userAtom);
+  //placeholder user value until i get zustand to integrate with code
+  const user = useUserStore((state) => state.user);
+  const [userToken, setUserToken] = useAtom(userAtom);
   const showToast = useShowToast();
   const [uploading, setUploading] = useState(false);
+
+  if (!userToken) {
+    showToast("Error", "You must be logged in to create a post", "error");
+    navigate("/auth");
+  }
+
   const handleTextChange = (Event) => {
     const inputText = Event.target.value;
 
@@ -62,10 +74,11 @@ const CreatePost = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${userToken}`,
         },
         body: JSON.stringify({
-          postedBy: user._id,
-          text: postText,
+          postedBy: user.id,
+          content: postText,
           img: imgUrl,
         }),
       });
