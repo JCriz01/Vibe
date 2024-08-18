@@ -103,8 +103,8 @@ const CreatePost = () => {
     <>
       <Button
         position={"fixed"}
-        bottom={10}
-        right={10}
+        bottom={16}
+        right={8}
         leftIcon={<AddIcon />}
         bg={useColorModeValue("gray.300", "gray.dark")}
         onClick={onOpen}

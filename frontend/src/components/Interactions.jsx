@@ -20,6 +20,8 @@ import {
 import { domainUrl } from "../../domain_url";
 import { useAtomValue } from "jotai";
 import { useUserStore } from "../store/userStore";
+import { is } from "date-fns/locale";
+import { set } from "date-fns";
 //import { useQuery } from "@tanstack/react-query";
 
 const Interactions = ({ post: post_ }) => {
@@ -44,7 +46,7 @@ const Interactions = ({ post: post_ }) => {
   console.log(liked);
 
   const handleLikes = async () => {
-    if (!user)
+    if (!user.id)
       return showToast(
         "Error",
         "You must be logged in to like a post",
@@ -64,6 +66,11 @@ const Interactions = ({ post: post_ }) => {
           Authorization: `Bearer ${userToken}`,
         },
       });
+
+      if (res.status === 401) {
+        return showToast("Error", "Unauthorized", "error");
+      }
+
       const data = await res.json();
       console.log(data);
       if (data.error) {
@@ -88,12 +95,11 @@ const Interactions = ({ post: post_ }) => {
     if (isReplying) return;
 
     setIsReplying(true);
-    if (!user) {
-      return showToast(
-        "Error",
-        "You must be logged in to reply to a post",
-        "error"
-      );
+    if (!user.id) {
+      setIsReplying(false);
+      showToast("Error", "You must be logged in to reply to a post", "error");
+      onClose();
+      return;
     }
 
     try {

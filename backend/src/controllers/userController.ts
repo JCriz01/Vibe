@@ -159,7 +159,7 @@ export const loginUser = async (
     console.log("User is: ", user);
 
     if (!user) {
-      return res.status(400).json({ message: "Incorrect credentials." });
+      return res.status(400).json({ error: "Incorrect credentials." });
     }
 
     const match = await bcrypt.compare(req.body.password, user.password);
@@ -175,7 +175,7 @@ export const loginUser = async (
         user,
       });
     } else {
-      res.status(400).json({ message: "Incorrect credentials." });
+      res.status(400).json({ error: "Incorrect credentials." });
     }
   } catch (error: any) {
     console.log("Error in loginUser ", error.message);
@@ -218,13 +218,11 @@ export const followOrUnfollowUser = async (
         id: userId,
       },
       include: {
-        following: {
-          include: {
-            follower: true,
-          },
-        },
+        following: {},
       },
     });
+
+    console.dir(currentUser);
 
     if (!modifyUser || !currentUser) {
       return res.status(400).json({ error: "User not found" });
@@ -237,7 +235,7 @@ export const followOrUnfollowUser = async (
     }
 
     const isFollowing = currentUser.following.some((user) => {
-      return user.followerId === currentUser.id;
+      return user.followingId === modifyUser.id;
     });
 
     console.log("isFollowing: ", isFollowing);

@@ -19,10 +19,6 @@ const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        path: "/auth",
-        element: <AuthPage />,
-      },
-      {
         path: "/update",
         element: <UpdateProfilePage />,
       },
@@ -42,6 +38,10 @@ const router = createBrowserRouter([
         element: <PostPage />,
       },
     ],
+  },
+  {
+    path: "/auth",
+    element: <AuthPage />,
   },
 ]);
 

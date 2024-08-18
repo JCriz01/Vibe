@@ -82,9 +82,11 @@ const HomePage = () => {
   return (
     <>
       {!isLoading && data.length === 0 && (
-        <Flex justify={"center"}>
-          <Text fontSize={"lg"}>No posts available, follow users.</Text>
-        </Flex>
+        <div className="flex flex-col flex-grow h-full justify-center items-center">
+          <div>
+            <h2 className="text-xl font-bold">No Feed Available.</h2>
+          </div>
+        </div>
       )}
       {data.length > 0 &&
         data.map((post) => (
@@ -95,12 +97,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
-/*
-
-      {posts.length > 0 &&
-        posts.map((post) => (
-          <Posts key={post.id} post={post} postedBy={post.postedBy.id} />
-        ))}
-
-*/

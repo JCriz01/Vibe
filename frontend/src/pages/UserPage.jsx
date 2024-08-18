@@ -49,7 +49,7 @@ const UserPage = () => {
 
   console.log("Currently at UserPage,", username);
   console.log("Current User:", currentUser);
-  console.log("Token:", token);
+  //console.log("Token:", token);
 
   useEffect(() => {
     const getPosts = async () => {

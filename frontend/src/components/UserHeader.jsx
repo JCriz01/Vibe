@@ -1,18 +1,14 @@
-import { Box, Flex, Text, VStack } from "@chakra-ui/layout";
-import { Button, Link, useToast } from "@chakra-ui/react";
-//import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Avatar } from "@chakra-ui/avatar";
-import { BsInstagram } from "react-icons/bs";
-import { CgMoreO } from "react-icons/cg";
-import { Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/menu";
-import { Portal } from "@chakra-ui/portal";
-import { Link as RouterLink } from "react-router-dom";
+import { useToast } from "@chakra-ui/react";
+import { Link } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import useShowToast from "../hooks/useShowToast";
 import { domainUrl } from "../../domain_url";
 import { useUserStore } from "../store/userStore";
 import { useAtomValue } from "jotai";
 import userAtom from "../atoms/userAtom";
+import parseName from "../utils/helper/parseName";
 
 const UserHeader = ({ user }) => {
   console.log("user is: ", user);
@@ -71,7 +67,6 @@ const UserHeader = ({ user }) => {
         showToast("Error", data.error, "error");
         return;
       }
-      setFollowing(!following);
 
       if (following) {
         showToast("Success", "Unfollowed user", "success");
@@ -80,6 +75,8 @@ const UserHeader = ({ user }) => {
         showToast("Success", "Followed user", "success");
         user.followers.push(currentUser?.id); //adding follower
       }
+      setFollowing(!following);
+
       console.log(data);
     } catch (error) {
       showToast("Error", error, "error");
@@ -89,6 +86,47 @@ const UserHeader = ({ user }) => {
   };
 
   return (
+    <div className=" gap-4 m-4 flex flex-col">
+      <div className=" relative w-full h-40  ">
+        <div className=" w-full h-full bg-gradient-to-r from-rose-400 to-red-700 rounded-md"></div>
+        <Avatar className="absolute -bottom-4 left-6">
+          <AvatarImage src={user.avatar} />
+          <AvatarFallback className="">{parseName(user.name)}</AvatarFallback>
+        </Avatar>
+      </div>
+      <div>
+        <h2 className="font-bold text-xl">{user.name}</h2>
+      </div>
+      <div>
+        <div className="flex gap-2">
+          <p className="font-bold text-base">{user.followers.length} </p>
+          <p className="text-slate-500"> Follower</p>
+        </div>
+        <p>{user.bio}</p>
+      </div>
+      <div className="gap-4 flex">
+        {currentUser?.id === user.id && (
+          <Link to="/update" className="flex-grow max-w-1/2">
+            <Button className="w-full">Update Profile</Button>
+          </Link>
+        )}
+        {currentUser?.id !== user.id && (
+          <Button onClick={handleFollowUnfollow} className="flex-grow">
+            {updating ? "Loading..." : following ? "Unfollow" : "Follow"}
+          </Button>
+        )}
+
+        <Button className="flex-grow">
+          <p>More...</p>
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default UserHeader;
+
+/*
     <VStack gap={4} alignItems={"start"}>
       <Flex justifyContent={"space-between"} w={"full"}>
         <Box>
@@ -202,7 +240,4 @@ const UserHeader = ({ user }) => {
         </Flex>
       </Flex>
     </VStack>
-  );
-};
-
-export default UserHeader;
+    */

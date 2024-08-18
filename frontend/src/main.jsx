@@ -6,11 +6,12 @@ import { ChakraProvider, ColorModeScript, extendTheme } from "@chakra-ui/react";
 import { mode } from "@chakra-ui/theme-tools";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import router from "./utils/router.tsx";
+import router from "./utils/router.jsx";
 //import { Provider } from "jotai";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ThemeProvider } from "@/components/theme-provider";
 
-import { RecoilRoot } from "recoil";
+import { Toaster } from "@/components/ui/toaster";
 
 const queryClient = new QueryClient();
 
@@ -44,9 +45,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <ChakraProvider theme={theme}>
-        <ColorModeScript initialColorMode={theme.config.initalColorMode} />
-        <ReactQueryDevtools initialIsOpen={false} />
-        <RouterProvider router={router}></RouterProvider>
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+          <ColorModeScript initialColorMode={theme.config.initalColorMode} />
+          <ReactQueryDevtools initialIsOpen={false} />
+          <RouterProvider router={router}></RouterProvider>
+          <Toaster />
+        </ThemeProvider>
       </ChakraProvider>
     </QueryClientProvider>
   </React.StrictMode>
