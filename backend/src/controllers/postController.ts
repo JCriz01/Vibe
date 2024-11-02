@@ -346,6 +346,7 @@ export const getUserPosts = async (
                 likes: true,
               },
             },
+            user: true,
           },
         },
       },

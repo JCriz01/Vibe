@@ -21,10 +21,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import formSchema from "../utils/formSchema";
 import "ldrs/ring";
+import { Link } from "react-router-dom";
 
 import { useToast } from "@/components/ui/use-toast";
 const LoginForm = () => {
@@ -97,14 +98,14 @@ const LoginForm = () => {
   }
 
   return (
-    <div className="flex items-center justify-center flex-col">
+    <div className="flex flex-col items-center justify-center flex-cov h-full">
       <div className=" flex flex-col items-center mb-3 gap-4">
         <h2 className=" text-4xl font-bold">Login to your account</h2>
         <p className=" text-gray-600 font-sans text-lg">
           To have fun with the gang
         </p>
       </div>
-      <Card className="p-3 w-3/5">
+      <Card className="p-3 w-3/5 lg:w-[520px]">
         <CardContent className="flex flex-col ">
           <Form {...form}>
             <form
@@ -143,6 +144,12 @@ const LoginForm = () => {
                   </FormItem>
                 )}
               />
+              <div className="flex items-center">
+                <p className="">Dont have an account? </p>
+                <Link to={"/"} onClick={() => setAuthScreen("register")}>
+                  <p>Sign up</p>
+                </Link>
+              </div>
               {loading ? (
                 <Button className="self-center" type="submit" disabled>
                   <l-ring />

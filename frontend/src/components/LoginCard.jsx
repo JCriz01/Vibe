@@ -1,3 +1,5 @@
+//not using?
+
 import { useState, react } from "react";
 import {
   Flex,
@@ -22,8 +24,9 @@ import { domainUrl } from "../../domain_url";
 import { useUserStore } from "../store/userStore";
 import { useNavigate } from "react-router-dom";
 
-//TODO: Fix jotai state not updating immediately.
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
+//TODO: Fix jotai state not updating immediately.
 export default function SimpleCard() {
   const navigate = useNavigate();
   const [, setAuthScreen] = useAtom(authScreenAtom);
@@ -36,6 +39,8 @@ export default function SimpleCard() {
   const [loading, setLoading] = useState(false);
 
   const showToast = useShowToast();
+
+  console.log("loading login card");
 
   const handleLogin = async () => {
     setLoading(true);
@@ -72,14 +77,14 @@ export default function SimpleCard() {
   };
 
   return (
-    <Flex align={"center"} justify={"center"}>
-      <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
-        <Stack align={"center"}>
+    <Card className=" lg:w-96 ">
+      <CardContent>
+        <div className=" items-center">
           <Heading fontSize={"4xl"}>Sign in to your account</Heading>
           <Text fontSize={"lg"} color={"gray.600"}>
             to have fun with the gang✌️
           </Text>
-        </Stack>
+        </div>
         <Box
           rounded={"lg"}
           bg={useColorModeValue("white", "gray.dark")}
@@ -144,7 +149,7 @@ export default function SimpleCard() {
             </Stack>
           </Stack>
         </Box>
-      </Stack>
-    </Flex>
+      </CardContent>
+    </Card>
   );
 }
