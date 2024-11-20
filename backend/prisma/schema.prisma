@@ -14,74 +14,71 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid())
+  id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  name String 
-  username String @unique
-  email String @unique
-  password String
-  avatar String @default("")
-  bio String @default("")
+  name      String
+  username  String   @unique
+  email     String   @unique
+  password  String
+  avatar    String   @default("")
+  bio       String   @default("")
   followers Follow[] @relation("Followers")
   following Follow[] @relation("Following")
-  posts Post[]
-  replies Reply[]
-  likes Like[]
+  posts     Post[]
+  replies   Reply[]
+  likes     Like[]
 }
 
 model Post {
-
-  id String @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  postedBy User @relation(fields: [postedById], references: [id])
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  postedBy   User     @relation(fields: [postedById], references: [id])
   postedById String
-  content String
-  image String?
-  replies Reply[]
-  likes Like[]
+  content    String
+  image      String?
+  replies    Reply[]
+  likes      Like[]
 }
 
 model Reply {
-  id String @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  postId String
-  userId String
-  content String
-  likes Like[]
-  childReplies Reply[] @relation("NestedReplies")
+  id            String   @id @default(uuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  postId        String
+  userId        String
+  content       String
+  likes         Like[]
+  childReplies  Reply[]  @relation("NestedReplies")
   parentReplyId String?
-  parentReply Reply? @relation("NestedReplies", fields: [parentReplyId], references: [id])
-  user User @relation(fields: [userId], references: [id])
-  post Post @relation(fields: [postId], references: [id])
-
+  parentReply   Reply?   @relation("NestedReplies", fields: [parentReplyId], references: [id])
+  user          User     @relation(fields: [userId], references: [id])
+  post          Post     @relation(fields: [postId], references: [id])
 }
 
 model Like {
-  id String @id @default(uuid())
+  id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user User @relation(fields: [userId], references: [id])
-  userId String
-  post Post? @relation(fields: [postId], references: [id])
-  postId String?
-  reply Reply? @relation(fields: [replyId], references: [id])
-  replyId String?
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  post      Post?    @relation(fields: [postId], references: [id])
+  postId    String?
+  reply     Reply?   @relation(fields: [replyId], references: [id])
+  replyId   String?
 
   @@unique([userId, postId, replyId])
 }
 
 model Follow {
-  id String @id @default(uuid())
-  follower User @relation("Following", fields: [followerId], references: [id])
-  followerId String
-  following User @relation("Followers", fields: [followingId], references: [id])
+  id          String   @id @default(uuid())
+  follower    User     @relation("Following", fields: [followerId], references: [id])
+  followerId  String
+  following   User     @relation("Followers", fields: [followingId], references: [id])
   followingId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@unique([followerId, followingId])
-
 }

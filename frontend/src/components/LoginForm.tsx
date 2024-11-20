@@ -28,6 +28,7 @@ import "ldrs/ring";
 import { Link } from "react-router-dom";
 
 import { useToast } from "@/components/ui/use-toast";
+
 const LoginForm = () => {
   const navigate = useNavigate();
   const [, setAuthScreen] = useAtom(authScreenAtom);
@@ -100,17 +101,17 @@ const LoginForm = () => {
   return (
     <div className="flex flex-col items-center justify-center flex-cov h-full">
       <div className=" flex flex-col items-center mb-3 gap-4">
-        <h2 className=" text-4xl font-bold">Login to your account</h2>
+        <h2 className=" dark:text-white text-center self-center text-4xl font-bold">Login to your account</h2>
         <p className=" text-gray-600 font-sans text-lg">
           To have fun with the gang
         </p>
       </div>
-      <Card className="p-3 w-3/5 lg:w-[520px]">
+      <Card className="p-3 md:w-3/5 lg:w-[520px] dark:bg-white">
         <CardContent className="flex flex-col ">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-8 p-3 flex flex-col"
+              className="space-y-8 p-3 flex flex-col dark:text-gray-900"
             >
               <FormField
                 control={form.control}
@@ -120,7 +121,7 @@ const LoginForm = () => {
                     <FormLabel>Username</FormLabel>
                     <FormControl>
                       <Input
-                        className=" dark:text-gray-200 "
+                        className=" dark:text-gray-200 bg-white "
                         placeholder="username"
                         {...field}
                       />
@@ -144,19 +145,20 @@ const LoginForm = () => {
                   </FormItem>
                 )}
               />
-              <div className="flex items-center">
-                <p className="">Dont have an account? </p>
-                <Link to={"/"} onClick={() => setAuthScreen("register")}>
-                  <p>Sign up</p>
-                </Link>
+              <div className="flex items-center justify-center">
+                <p className=" self-center dark:text-gray-900 text-center">Dont have an account? {" "}
+                  <Link to={"/"} onClick={() => setAuthScreen("register")}>
+                    <p className={"text-blue-500"}>Sign Up</p>
+                  </Link>
+                </p>
               </div>
               {loading ? (
                 <Button className="self-center" type="submit" disabled>
                   <l-ring />
                 </Button>
               ) : (
-                <Button className="self-center" type="submit">
-                  Submit
+                <Button className="self-center dark:bg-neutral-500" type="submit">
+                  <p className={"dark:text-white"}>Login In</p>
                 </Button>
               )}
             </form>
