@@ -1,0 +1,26 @@
+Index: backend/prisma/schema.prisma
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id String @id @default(uuid())\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  name String \n  username String @unique\n  email String @unique\n  password String\n  avatar String @default(\"\")\n  bio String @default(\"\")\n  followers Follow[] @relation(\"Followers\")\n  following Follow[] @relation(\"Following\")\n  posts Post[]\n  replies Reply[]\n  likes Like[]\n}\n\nmodel Post {\n\n  id String @id @default(uuid())\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  postedBy User @relation(fields: [postedById], references: [id])\n  postedById String\n  content String\n  image String?\n  replies Reply[]\n  likes Like[]\n}\n\nmodel Reply {\n  id String @id @default(uuid())\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  postId String\n  userId String\n  content String\n  likes Like[]\n  childReplies Reply[] @relation(\"NestedReplies\")\n  parentReplyId String?\n  parentReply Reply? @relation(\"NestedReplies\", fields: [parentReplyId], references: [id])\n  user User @relation(fields: [userId], references: [id])\n  post Post @relation(fields: [postId], references: [id])\n\n}\n\nmodel Like {\n  id String @id @default(uuid())\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  user User @relation(fields: [userId], references: [id])\n  userId String\n  post Post? @relation(fields: [postId], references: [id])\n  postId String?\n  reply Reply? @relation(fields: [replyId], references: [id])\n  replyId String?\n\n  @@unique([userId, postId, replyId])\n}\n\nmodel Follow {\n  id String @id @default(uuid())\n  follower User @relation(\"Following\", fields: [followerId], references: [id])\n  followerId String\n  following User @relation(\"Followers\", fields: [followingId], references: [id])\n  followingId String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@unique([followerId, followingId])\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/prisma/schema.prisma b/backend/prisma/schema.prisma
+--- a/backend/prisma/schema.prisma	(revision c2286490866f5172903467b7e85a96f614738faa)
++++ b/backend/prisma/schema.prisma	(date 1732046683042)
+@@ -28,6 +28,7 @@
+   posts Post[]
+   replies Reply[]
+   likes Like[]
++  banned
+ }
+ 
+ model Post {
+@@ -56,7 +57,6 @@
+   parentReply Reply? @relation("NestedReplies", fields: [parentReplyId], references: [id])
+   user User @relation(fields: [userId], references: [id])
+   post Post @relation(fields: [postId], references: [id])
+-
+ }
+ 
+ model Like {
