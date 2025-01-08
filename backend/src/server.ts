@@ -10,7 +10,6 @@ import passport from "./utils/passport";
 const session = require("express-session");
 import { v2 as cloudinary } from "cloudinary";
 import { PrismaClient } from "@prisma/client";
-import { log } from "console";
 import { signupSchema } from "./schema/User";
 import { errorMiddleware } from "./middlewares/errors";
 
@@ -18,9 +17,6 @@ import { errorMiddleware } from "./middlewares/errors";
 dotenv.config({ path: path.join(__dirname, "/.env") });
 //require("dotenv").config();
 
-//connecting to database
-
-//connectToMongoDB();
 const app = express();
 
 const PORT = process.env.PORT || 5000;

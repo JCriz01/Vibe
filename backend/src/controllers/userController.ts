@@ -4,6 +4,7 @@ import { NextFunction, Request, Response } from "express";
 import { User } from "@prisma/client";
 import { prismaClient as prisma } from "../server";
 import { UnprocessableEntityError } from "../exceptions/validation";
+import { UserValidationError } from "../exceptions/user-validation";
 import { ErrorCodes } from "../exceptions/root";
 import { signupSchema } from "../schema/User";
 import { issueJWT } from "../utils/utils";
@@ -21,7 +22,9 @@ export const getCurrentUser = (
   const user = req.user as User;
 
   if (!user) {
-    res.status(400).json({ error: "User not found" });
+    return next(
+      new UserValidationError("User not found", ErrorCodes.USER_NOT_FOUND, 401)
+    )
   }
 
   res.status(200).json(user);
@@ -42,21 +45,16 @@ export const signupUser = async (
 
     const user = await prisma.user.findFirst({
       where: {
-        OR: [
-          {
-            email,
-          },
-          {
-            username,
-          },
-        ],
+        username: username,
       },
     });
 
     console.log("User is: ", user);
 
     if (user) {
-      return res.status(400).json({ error: "User already exists" });
+      return next(
+        new UserValidationError("Username has been taken.", ErrorCodes.USER_ALREADY_EXISTS, 400)
+      );
     }
 
     bcrypt.hash(password, 8, async (err, hash) => {
@@ -83,7 +81,7 @@ export const signupUser = async (
       }
     });
   } catch (error: any) {
-    console.log("Error in signupUser ", error.message);
+    console.log("Error in signupUser ", error);
     next(
       new UnprocessableEntityError(
         error.issues,
@@ -99,6 +97,7 @@ export const getUserProfile = async (
   res: Response,
   next: NextFunction
 ) => {
+
   //query is either username or userId
   const { query } = req.params;
 
@@ -128,7 +127,9 @@ export const getUserProfile = async (
     });
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return next(
+        new UserValidationError("User not found", ErrorCodes.USER_NOT_FOUND, 401)
+      )
     }
 
     res.status(200).json(user);
@@ -159,7 +160,7 @@ export const loginUser = async (
     console.log("User is: ", user);
 
     if (!user) {
-      return res.status(400).json({ error: "Incorrect credentials." });
+      throw Error("User not found");
     }
 
     const match = await bcrypt.compare(req.body.password, user.password);
@@ -175,13 +176,13 @@ export const loginUser = async (
         user,
       });
     } else {
-      res.status(400).json({ error: "Incorrect credentials." });
+      throw Error("Invalid username or password");
     }
   } catch (error: any) {
-    console.log("Error in loginUser ", error.message);
+    console.log("Error in loginUser ", error);
     next(
       new UnprocessableEntityError(
-        error.issues,
+        error.message,
         "Validation Error",
         ErrorCodes.USER_NOT_FOUND
       )
