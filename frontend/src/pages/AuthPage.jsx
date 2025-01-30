@@ -1,5 +1,4 @@
-import SignupCard from "../components/SignupCard";
-import LoginCard from "../components/LoginCard";
+import SignupForm from "../components/SignupForm";
 import authScreenAtom from "../atoms/authAtom";
 import LoginForm from "../components/LoginForm";
 import { useAtom, useAtomValue } from "jotai";
@@ -8,7 +7,7 @@ const AuthPage = () => {
 
   //useSetRecoilState(authScreenAtom);
 
-  return <>{authScreenState === "login" ? <LoginForm /> : <SignupCard />}</>;
+  return <>{authScreenState === "login" ? <LoginForm /> : <SignupForm />}</>;
 };
 
 export default AuthPage;

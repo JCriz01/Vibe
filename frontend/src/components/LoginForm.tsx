@@ -3,7 +3,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { useAtom } from "jotai";
-//import { useSetRecoilState } from "recoil";
 import authScreenAtom from "../atoms/authAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
@@ -12,27 +11,12 @@ import { domainUrl } from "../../domain_url";
 import { useUserStore } from "../store/userStore";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import formSchema from "../utils/formSchema";
 import "ldrs/ring";
 import { Link } from "react-router-dom";
-
 import { useToast } from "@/components/ui/use-toast";
-
-type Inputs = {
-  exampe: string;
-  exampleRequired: string;
-};
 
 const LoginForm = () => {
   const navigate = useNavigate();
