@@ -2,4 +2,4 @@
 //js file to store the domain url
 
 //this is the backend domain url
-export const domainUrl = "http://localhost:5500";
+export const domainUrl = "https://vibe-production.up.railway.app";
