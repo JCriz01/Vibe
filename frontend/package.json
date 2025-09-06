@@ -41,7 +41,7 @@
     "react-icons": "^4.11.0",
     "react-router-dom": "^6.16.0",
     "recoil": "^0.7.7",
-    "serve": "^14.2.1",
+    "serve": "^14.2.5",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8",
